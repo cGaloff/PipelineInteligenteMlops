@@ -3,9 +3,9 @@ import requests
 from dotenv import load_dotenv
 import os
 
-
 load_dotenv()
 url = os.getenv("url")
+model_url = os.getenv("model_url")
 cnn_url = os.getenv("CNN_URL")
 
 def chat(message, history):
@@ -28,6 +28,31 @@ def chat(message, history):
     except requests.exceptions.RequestException as e:
         return f"Error {e}"
     
+def model_prediction(csv_filepath: str) -> str:
+    if csv_filepath is None:
+        return "Suba un archivo"
+    try:
+        with open(csv_filepath, "rb") as f:
+            files = {"csv" : (csv_filepath, f, "text/csv")}
+
+            response = requests.post(model_url, files=files)
+            response.raise_for_status()
+
+            data = response.json()
+
+            if data.get("result") == "Error":
+                return f"Error: {data.get('message')}"
+            prediction = data.get("prediction")
+            explicacion = data.get("explicacion")
+
+            output_text = (
+                f"**Prediccion del modelo:** {prediction.upper()}\n"
+                f"**Explicacion:** {explicacion}"
+            )
+            return output_text
+        
+    except requests.exceptions.RequestException as e:
+        return f"Error de conexión con el servicio del modelo: {e}"
 
 def cnn_image(image_filepath):
     if image_filepath is None:
@@ -65,8 +90,15 @@ with gr.Blocks() as interface:
     gr.ChatInterface(chat, title="Chat LLM")
 
     gr.Markdown('# Análisis con ML')
-    inputs=gr.File(label="Sube el archivo con datos", type="filepath", file_count='single'),
+    inputs=gr.File(label="Sube el archivo con datos", type="filepath", file_count='single')
+    model_output = gr.TextArea(label="Resultados", interactive=False)
     sendFile = gr.Button("Enviar")
+
+    sendFile.click(
+        fn=model_prediction,
+        inputs=[inputs],
+        outputs=[model_output]
+    )
     
     gr.Markdown('# Clasificación de imagenes')
     image = gr.File(label="Sube tu imagen", type="filepath", file_count='single', file_types=['image'])

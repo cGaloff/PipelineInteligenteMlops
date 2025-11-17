@@ -29,11 +29,9 @@ GLOBAL_MODEL = None
 def load_or_get_model():
 
     global GLOBAL_MODEL
-    if GLOBAL_MODEL is None:
-        print("Cargando modelo CNN...")
 
-        GLOBAL_MODEL = create_cnn_model(INPUT_SHAPE, NUM_CLASSES)
-        print("Modelo CNN cargado.")
+    if GLOBAL_MODEL is None:
+        GLOBAL_MODEL = tf.keras.models.load_model('cnn_image/models/cnn_rps.keras')
         
     return GLOBAL_MODEL
 

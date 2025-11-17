@@ -2,14 +2,13 @@ from fastapi import FastAPI, UploadFile, File, HTTPException
 from PIL import Image
 import io
 import numpy as np
-import time
-from cnn_image.filters.convolution import apply_convolution_filters 
-from cnn_image.app.classification import classify_image 
+from filters.convolution import apply_convolution_filters 
+from app.classification import classify_image 
 
 app = FastAPI()
 
-IMAGE_CLASSES = ["perro", "gato", "pajaro"]
-LIMITATION_MESSAGE = "El sistema solo está entrenado para reconocer imágenes de perro, gato, o pájaro."
+IMAGE_CLASSES = ["piedra", "papel", "tijera"]
+LIMITATION_MESSAGE = f"El sistema solo está entrenado para reconocer imágenes de {IMAGE_CLASSES}"
 
 def load_image_from_upload(image_bytes: bytes) -> np.ndarray:
     try:
@@ -44,3 +43,5 @@ async def classify_image_endpoint(image: UploadFile = File(...)):
         raise e
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Fallo interno en la clasificación: {e}")
+    
+#run using uvicorn cnn_service:app --reload --port 8002 at pipelineinteligentemlops/cnn_image

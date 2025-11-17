@@ -43,3 +43,5 @@ def generateResponse(messages: list[Message]):
 
     except Exception as e:
         return {"response" : f"error del MLL {e}"}
+    
+#Run using uvicorn connector:app --reload --port 8000 at llm_connector/app
