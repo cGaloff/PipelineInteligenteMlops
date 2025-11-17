@@ -1,3 +1,4 @@
 .env
 sklearn_model/mlruns/
 sklearn_model/mlflow.db
+cnn_image/models/cnn_rps.keras
