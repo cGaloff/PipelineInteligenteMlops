@@ -71,12 +71,14 @@ def cnn_image(image_filepath):
             
             prediction = data.get("prediction")
             confidence = data.get("confidence")
+            explanation = data.get("explanation")
             limitations = data.get("limitations")
 
             output_text = (
-                f"**Resultado de la Clasificación:** {prediction.upper()}\n"
-                f"**Confianza:** {confidence}\n\n"
-                f"**Limitaciones del Sistema:**\n{limitations}"
+                f"Resultado de la Clasificación: {prediction.upper()}\n"
+                f"Confianza: {confidence}\n\n"
+                f"Explicación: {explanation}\n\n"
+                f"Limitaciones del Sistema:\n{limitations}"
             )
             return output_text
         

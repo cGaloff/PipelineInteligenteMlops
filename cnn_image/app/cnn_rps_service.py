@@ -1,12 +1,13 @@
 import io
 import os
 from pathlib import Path
-
+from google import genai
 import numpy as np
 from PIL import Image
 from fastapi import FastAPI, UploadFile, File, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from tensorflow import keras
+from dotenv import load_dotenv
 
 # =========================
 # Configuración general
@@ -29,6 +30,10 @@ EN_TO_ES = {
     "rock": "piedra",
     "scissors": "tijera",
 }
+load_dotenv()
+gemini_api_key = os.getenv("gemini_api_key")
+
+client = genai.Client(api_key=gemini_api_key)
 
 LIMITATION_MESSAGE = (
     "El sistema solo está entrenado para reconocer imágenes de gestos "
@@ -133,13 +138,28 @@ async def classify_image_endpoint(image: UploadFile = File(...)):
         # 2) Predicción
         prediction, confidence = predict_rps(img_np)
 
+        prompt_explicacion = (
+            f"""Eres un analista experto de imagenes.
+            interpreta esta predicción {prediction} que tuvo una confianza de {confidence:.2f}. Proporciona una explicación clara, breve y técnica de este resultado.
+            No inventes datos. Sé objetivo.
+            Retorna la explicación en español.."""
+        )
+
+        response = client.models.generate_content(
+            model="gemini-2.5-flash",
+            contents=prompt_explicacion,
+        )
+        explicacion = response.text
+
         # 3) Respuesta
-        return {
-            "prediction": prediction,
-            "confidence": round(confidence, 4),
-            "classes_supported": IMAGE_CLASSES,
-            "limitations": LIMITATION_MESSAGE,
-        }
+        if explicacion:
+            return {
+                "prediction": prediction,
+                "confidence": round(confidence, 4),
+                "explanation" : explicacion,
+                "classes_supported": IMAGE_CLASSES,
+                "limitations": LIMITATION_MESSAGE,
+            }
 
     except HTTPException as e:
         # errores controlados
