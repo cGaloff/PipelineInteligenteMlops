@@ -1,10 +1,12 @@
 from fastapi import FastAPI, UploadFile, File, HTTPException
+from custom_transformer import CustomDataCleaner
 import joblib
 import pandas as pd
 from google import genai
 from dotenv import load_dotenv
 import os
 import io
+import numpy as np
 
 app = FastAPI()
 
@@ -24,7 +26,7 @@ async def make_prediction(csv: UploadFile = File(...)):
         return {"result": "Error", "message": f"Error al cargar el modelo {e}"}
     content = await csv.read()
 
-    csv_stream = io.String(content.decode('utf-8'))
+    csv_stream = io.StringIO(content.decode('utf-8'))
 
     df = pd.read_csv(csv_stream, sep=",")
 
@@ -35,7 +37,9 @@ async def make_prediction(csv: UploadFile = File(...)):
     try:
         predicted_value = model.predict(prep_data)[0]
         datos_string = prep_data.iloc[0].to_dict()
-        datos_str_limpio = ", ".join([f"{k}: {v:.2f}" for k, v in datos_string.items()])
+        datos_str_limpio = ", ".join(
+        f"{k}: {v:.2f}" if isinstance(v, (int, float, np.floating)) else f"{k}: {v}"
+        for k, v in datos_string.items())
 
     except Exception as e:
         return {"result": "Error", "message": f"Error durante la predicción con el modelo: {e}"}
