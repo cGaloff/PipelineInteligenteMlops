@@ -2,5 +2,5 @@
 sklearn_model/mlruns/
 sklearn_model/mlflow.db
 sklearn_model/modelo_rf.pkl
-sklearn_model/__pycache__/
+__pycache__/
 cnn_image/models/cnn_rps.keras
