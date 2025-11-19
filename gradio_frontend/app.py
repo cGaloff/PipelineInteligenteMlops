@@ -46,7 +46,7 @@ def model_prediction(csv_filepath: str) -> str:
             explicacion = data.get("explicacion")
 
             output_text = (
-                f"**Prediccion del modelo:** {prediction.upper()}\n"
+                f"**Prediccion del modelo:** {prediction}\n"
                 f"**Explicacion:** {explicacion}"
             )
             return output_text

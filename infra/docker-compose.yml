@@ -1,0 +1,37 @@
+version: '3.8'
+
+services:
+  servicio-chat:
+    image: llm_connector
+    container_name: chat-api
+    ports:
+      - "8000:8000"
+    restart: always
+
+  servicio-cnn:
+    image: cnn_image
+    container_name: cnn-api
+    ports:
+      - "8002:8002"
+    restart: always
+
+  servicio-linear:
+    image: ml_model
+    container_name: ml-api
+    ports:
+      - "8003:8003"
+    restart: always
+
+  gradio-gui:
+    image: gradio-gui 
+    container_name: gradio-frontend
+    ports:
+      - "7860:7860"
+    depends_on:
+      - servicio-chat
+      - servicio-cnn
+      - servicio-linear
+    environment:
+      - url=http://servicio-chat:8000/chat
+      - model_url=http://servicio-linear:8003/model/linear/prediction
+      - CNN_URL=http://servicio-cnn:8002/api/cnn/classify
