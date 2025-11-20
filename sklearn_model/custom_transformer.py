@@ -14,7 +14,6 @@ from cleaning_functions import (
 
 
 class CustomDataCleaner(BaseEstimator, TransformerMixin):
-    """Transformer personalizado que usa tus funciones de limpieza"""
     
     def __init__(self):
         pass
@@ -23,10 +22,8 @@ class CustomDataCleaner(BaseEstimator, TransformerMixin):
         return self
     
     def transform(self, X, y=None):
-        # Crear una copia para no modificar el original
         df = X.copy()
         
-        # Aplicar tus funciones de limpieza
         df = normalize_categories(df)
         df = drop_duplicate_columns(df)
         df = replace_tbd_with_nan(df)
