@@ -2,20 +2,15 @@ version: "3.8"
 
 services:
   servicio-chat:
-    image: llm_connector        # ya la tienes construida localmente
+    image: llm_connector
     ports:
       - "8000:8000"
     deploy:
-      replicas: 1               # puedes subir a 2–3 si quieres
+      replicas: 1
       restart_policy:
         condition: any
-    environment:
-      # Si tu servicio de chat usa Gemini, pasa la key como variable
-      # GEMINI_API_KEY: ${GEMINI_API_KEY}
-      # o la que uses internamente:
-      # gemini_api_key: ${GEMINI_API_KEY}
-      # (ajústalo a cómo lo lees en tu código)
-      - GEMINI_API_KEY=${GEMINI_API_KEY}
+    env_file:
+      - ../llm_connector/.env
 
   servicio-cnn:
     image: cnn_image
@@ -25,6 +20,9 @@ services:
       replicas: 1
       restart_policy:
         condition: any
+    # Le pasamos el .env propio del proyecto CNN
+    env_file:
+      - ../cnn_image/.env
 
   servicio-linear:
     image: ml_model
@@ -34,6 +32,9 @@ services:
       replicas: 1
       restart_policy:
         condition: any
+    # Usa el .env que ya tienes dentro de infra/
+    env_file:
+      - ./.env
 
   gradio-gui:
     image: gradio-gui
@@ -44,7 +45,7 @@ services:
       restart_policy:
         condition: any
     environment:
-      # Ojo: dentro de Swarm los servicios se ven por su NOMBRE
+      # OJO: en Swarm, los servicios se resuelven por nombre
       - url=http://servicio-chat:8000/chat
       - model_url=http://servicio-linear:8003/model/linear/prediction
       - CNN_URL=http://servicio-cnn:8002/api/cnn/classify
