@@ -20,7 +20,6 @@ services:
       replicas: 1
       restart_policy:
         condition: any
-    # Le pasamos el .env propio del proyecto CNN
     env_file:
       - ../cnn_image/.env
 
@@ -32,7 +31,6 @@ services:
       replicas: 1
       restart_policy:
         condition: any
-    # Usa el .env que ya tienes dentro de infra/
     env_file:
       - ./.env
 
@@ -45,7 +43,6 @@ services:
       restart_policy:
         condition: any
     environment:
-      # OJO: en Swarm, los servicios se resuelven por nombre
       - url=http://servicio-chat:8000/chat
       - model_url=http://servicio-linear:8003/model/linear/prediction
       - CNN_URL=http://servicio-cnn:8002/api/cnn/classify
